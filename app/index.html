@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🍫 Chocolate Bar Recognition</title>
+<style>
+/* ── Reset & base ───────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f7f8; --card:#fff; --border:#e2e2e5;
+  --text:#1a1a1a; --muted:#6b6b76; --accent:#2563eb;
+  --accent-hover:#1d4ed8; --radius:12px; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg); color:var(--text); line-height:1.55;
+  min-height:100vh;
+}
+
+/* ── Layout ─────────────────────────────────────────────────── */
+.wrapper{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+
+/* ── Header ─────────────────────────────────────────────────── */
+header{text-align:center;padding:32px 0 20px}
+header h1{font-size:1.75rem;font-weight:700;letter-spacing:-.02em}
+header p{color:var(--muted);font-size:.95rem;margin-top:4px}
+
+/* ── Tabs ───────────────────────────────────────────────────── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:28px}
+.tab-btn{
+  background:none;border:none;padding:10px 22px;font-size:.9rem;font-weight:500;
+  color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
+  transition:color .15s,border-color .15s;
+}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── Card ───────────────────────────────────────────────────── */
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;box-shadow:var(--shadow);
+}
+
+/* ── Upload area ────────────────────────────────────────────── */
+.upload-zone{
+  border:2px dashed var(--border);border-radius:var(--radius);
+  padding:48px 24px;text-align:center;cursor:pointer;
+  transition:border-color .2s,background .2s;position:relative;
+  background:#fafafa;
+}
+.upload-zone:hover,.upload-zone.dragover{
+  border-color:var(--accent);background:#f0f5ff;
+}
+.upload-zone svg{width:48px;height:48px;color:var(--muted);margin-bottom:12px}
+.upload-zone p{color:var(--muted);font-size:.9rem}
+.upload-zone p strong{color:var(--text)}
+.upload-zone input{display:none}
+.upload-zone.has-image{padding:0;border-style:solid}
+.upload-zone.has-image img{width:100%;border-radius:var(--radius);display:block}
+
+/* preview clear btn */
+.clear-btn{
+  position:absolute;top:8px;right:8px;width:28px;height:28px;
+  border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;
+  font-size:1rem;cursor:pointer;display:none;align-items:center;justify-content:center;
+  line-height:1;
+}
+.upload-zone.has-image .clear-btn{display:flex}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:11px 28px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;
+  cursor:pointer;transition:background .15s,transform .1s;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-primary:disabled{background:#94a3b8;cursor:not-allowed}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{background:#f0f0f2}
+.btn-cam{background:#10b981;color:#fff}
+.btn-cam:hover{background:#059669}
+
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+
+/* ── Examples ───────────────────────────────────────────────── */
+.examples-label{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.examples-row{display:flex;gap:8px;flex-wrap:wrap}
+.examples-row img{
+  width:72px;height:72px;object-fit:cover;border-radius:8px;
+  border:2px solid transparent;cursor:pointer;transition:border-color .15s;
+}
+.examples-row img:hover{border-color:var(--accent)}
+
+/* ── Results ────────────────────────────────────────────────── */
+.results{display:none}
+.results.visible{display:block}
+
+.result-header{display:flex;align-items:baseline;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.result-header h2{font-size:1.35rem;font-weight:700}
+.result-header .confidence-badge{
+  font-size:.85rem;font-weight:600;padding:4px 12px;border-radius:999px;
+}
+.confidence-high{background:#d1fae5;color:#065f46}
+.confidence-low{background:#fef3c7;color:#92400e}
+
+.warning-banner{
+  background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;
+  padding:12px 16px;font-size:.85rem;color:#92400e;margin-bottom:20px;
+}
+
+/* probability bars */
+.prob-bars{margin-bottom:24px}
+.prob-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.prob-row .name{width:90px;font-size:.85rem;font-weight:500;text-align:right}
+.prob-row .bar-track{flex:1;height:24px;background:#f0f0f2;border-radius:6px;overflow:hidden;position:relative}
+.prob-row .bar-fill{height:100%;border-radius:6px;transition:width .4s ease}
+.prob-row .bar-fill.top{background:var(--accent)}
+.prob-row .bar-fill.other{background:#cbd5e1}
+.prob-row .pct{width:48px;font-size:.8rem;color:var(--muted);font-weight:600}
+
+/* two-col layout */
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+@media(max-width:700px){.result-grid{grid-template-columns:1fr}}
+.result-grid .card{padding:16px}
+.result-grid .section-title{
+  font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.05em;margin-bottom:10px;
+}
+.result-grid img{width:100%;border-radius:8px}
+
+/* gallery */
+.gallery-row{display:flex;gap:8px;flex-wrap:wrap}
+.gallery-item{text-align:center}
+.gallery-item img{width:100px;height:100px;object-fit:cover;border-radius:8px}
+.gallery-item .caption{font-size:.7rem;color:var(--muted);margin-top:4px}
+
+/* stats table */
+.stats-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:12px}
+.stats-table td{padding:7px 10px;border-bottom:1px solid var(--border)}
+.stats-table td:first-child{color:var(--muted);font-weight:500;width:45%}
+.stats-table td:last-child{font-weight:600}
+
+/* ── Synthetic tab ──────────────────────────────────────────── */
+.synth-note{font-size:.9rem;color:var(--muted);margin-bottom:16px}
+.synth-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.synth-grid img{width:100%;border-radius:8px}
+
+/* ── About tab ──────────────────────────────────────────────── */
+.about-section{max-width:740px}
+.about-section h3{font-size:1.1rem;font-weight:700;margin:24px 0 8px}
+.about-section h3:first-child{margin-top:0}
+.about-section p,.about-section li{font-size:.9rem;color:#333;line-height:1.7}
+.about-section ul{padding-left:20px;margin:8px 0}
+.about-section table{border-collapse:collapse;margin:10px 0;font-size:.85rem}
+.about-section th,.about-section td{
+  padding:6px 14px;border:1px solid var(--border);text-align:left;
+}
+.about-section th{background:#f5f5f5;font-weight:600}
+
+/* ── Spinner ────────────────────────────────────────────────── */
+.spinner-overlay{
+  display:none;position:fixed;inset:0;background:rgba(255,255,255,.7);
+  z-index:999;align-items:center;justify-content:center;
+}
+.spinner-overlay.visible{display:flex}
+.spinner{
+  width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Webcam modal ───────────────────────────────────────────── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:1000;align-items:center;justify-content:center;
+}
+.modal-overlay.visible{display:flex}
+.modal-box{
+  background:#fff;border-radius:var(--radius);padding:24px;
+  max-width:480px;width:90%;text-align:center;
+}
+.modal-box video{width:100%;border-radius:8px;background:#000;margin-bottom:12px}
+.modal-box canvas{display:none}
+.modal-actions{display:flex;gap:10px;justify-content:center}
+</style>
+</head>
+<body>
+
+<div class="spinner-overlay" id="spinner"><div class="spinner"></div></div>
+
+<!-- Webcam modal -->
+<div class="modal-overlay" id="camModal">
+  <div class="modal-box">
+    <video id="camVideo" autoplay playsinline></video>
+    <canvas id="camCanvas"></canvas>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="camSnap">📸 Snap</button>
+      <button class="btn btn-outline" id="camClose">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrapper">
+  <header>
+    <h1>🍫 Chocolate Bar Recognition</h1>
+    <p>Upload a photo or use the camera — get a prediction with a visual explanation</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="demo">Demo</button>
+    <button class="tab-btn" data-tab="synthetic">Synthetic Data</button>
+    <button class="tab-btn" data-tab="about">About &amp; Ethics</button>
+  </div>
+
+  <!-- ═══ DEMO TAB ═══ -->
+  <div class="tab-panel active" id="tab-demo">
+    <div class="card" style="margin-bottom:24px">
+      <div class="upload-zone" id="dropZone">
+        <button class="clear-btn" id="clearBtn" title="Remove image">&times;</button>
+        <img id="preview" alt="">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" id="uploadIcon">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+        </svg>
+        <p id="uploadText"><strong>Click to upload</strong> or drag &amp; drop<br>JPG, PNG, WEBP</p>
+        <input type="file" id="fileInput" accept="image/*">
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="predictBtn" disabled>Recognise</button>
+        <button class="btn btn-cam" id="cameraBtn">📷 Camera</button>
+      </div>
+    </div>
+
+    <!-- Example images -->
+    <div id="examplesSection" style="margin-bottom:28px">
+      <div class="examples-label">Example images (held-out test set)</div>
+      <div class="examples-row" id="examplesRow"></div>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results">
+      <div class="result-header">
+        <h2 id="resultClass"></h2>
+        <span class="confidence-badge" id="resultBadge"></span>
+      </div>
+      <div class="warning-banner" id="warningBanner" style="display:none">
+        ⚠️ Low confidence — the photo looks unlike the training images.
+        It may not be one of the 4 bars, or the bar is too small / covered / blurred.
+      </div>
+
+      <div class="prob-bars" id="probBars"></div>
+
+      <div class="result-grid">
+        <div class="card">
+          <div class="section-title">Grad-CAM — DINOv2 last block</div>
+          <img id="camImage" alt="Grad-CAM">
+        </div>
+        <div class="card">
+          <div class="section-title">5 nearest training images</div>
+          <div class="gallery-row" id="galleryRow"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Performance</div>
+        <table class="stats-table" id="statsTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SYNTHETIC TAB ═══ -->
+  <div class="tab-panel" id="tab-synthetic">
+    <div class="card">
+      <p class="synth-note">
+        <strong>Note:</strong> All images below are <strong>synthetic</strong> — bar cut-outs (SAM 2)
+        pasted onto new texture backgrounds. Used only to enlarge the training set; never for evaluation.
+      </p>
+      <div class="synth-grid" id="synthGrid"></div>
+    </div>
+  </div>
+
+  <!-- ═══ ABOUT TAB ═══ -->
+  <div class="tab-panel" id="tab-about">
+    <div class="card about-section" id="aboutContent">Loading…</div>
+  </div>
+</div>
+
+<script>
+/* ── Tabs ───────────────────────────────────────────────────── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ── Upload zone ────────────────────────────────────────────── */
+const dropZone   = document.getElementById('dropZone');
+const fileInput  = document.getElementById('fileInput');
+const preview    = document.getElementById('preview');
+const uploadIcon = document.getElementById('uploadIcon');
+const uploadText = document.getElementById('uploadText');
+const clearBtn   = document.getElementById('clearBtn');
+const predictBtn = document.getElementById('predictBtn');
+let currentFile  = null;
+
+function showPreview(file) {
+  currentFile = file;
+  const url = URL.createObjectURL(file);
+  preview.src = url;
+  preview.style.display = 'block';
+  uploadIcon.style.display = 'none';
+  uploadText.style.display = 'none';
+  dropZone.classList.add('has-image');
+  predictBtn.disabled = false;
+}
+
+function clearPreview() {
+  currentFile = null;
+  preview.src = '';
+  preview.style.display = 'none';
+  uploadIcon.style.display = '';
+  uploadText.style.display = '';
+  dropZone.classList.remove('has-image');
+  predictBtn.disabled = true;
+}
+
+dropZone.addEventListener('click', e => {
+  if (e.target === clearBtn || dropZone.classList.contains('has-image')) return;
+  fileInput.click();
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) showPreview(fileInput.files[0]); });
+clearBtn.addEventListener('click', e => { e.stopPropagation(); clearPreview(); });
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) showPreview(e.dataTransfer.files[0]);
+});
+
+/* ── Camera ─────────────────────────────────────────────────── */
+const camModal = document.getElementById('camModal');
+const camVideo = document.getElementById('camVideo');
+const camCanvas = document.getElementById('camCanvas');
+let camStream = null;
+
+document.getElementById('cameraBtn').addEventListener('click', async () => {
+  camModal.classList.add('visible');
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    camVideo.srcObject = camStream;
+  } catch(e) { alert('Camera access denied'); camModal.classList.remove('visible'); }
+});
+
+document.getElementById('camSnap').addEventListener('click', () => {
+  camCanvas.width = camVideo.videoWidth;
+  camCanvas.height = camVideo.videoHeight;
+  camCanvas.getContext('2d').drawImage(camVideo, 0, 0);
+  camCanvas.toBlob(blob => {
+    showPreview(new File([blob], 'camera.jpg', {type:'image/jpeg'}));
+    closeCam();
+  }, 'image/jpeg', 0.92);
+});
+
+document.getElementById('camClose').addEventListener('click', closeCam);
+function closeCam() {
+  if (camStream) camStream.getTracks().forEach(t => t.stop());
+  camStream = null;
+  camModal.classList.remove('visible');
+}
+
+/* ── Predict ────────────────────────────────────────────────── */
+predictBtn.addEventListener('click', doPredict);
+
+async function doPredict() {
+  if (!currentFile) return;
+  const spinner = document.getElementById('spinner');
+  spinner.classList.add('visible');
+  predictBtn.disabled = true;
+
+  const fd = new FormData();
+  fd.append('image', currentFile);
+
+  try {
+    const res = await fetch('/api/predict', {method:'POST', body:fd});
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    renderResults(data);
+  } catch(e) { alert('Request failed: ' + e.message); }
+  finally { spinner.classList.remove('visible'); predictBtn.disabled = false; }
+}
+
+function renderResults(d) {
+  const results = document.getElementById('results');
+  results.classList.add('visible');
+
+  /* header */
+  document.getElementById('resultClass').textContent = d.predicted_class;
+  const badge = document.getElementById('resultBadge');
+  badge.textContent = (d.confidence * 100).toFixed(0) + '%';
+  badge.className = 'confidence-badge ' + (d.low_confidence ? 'confidence-low' : 'confidence-high');
+
+  /* warning */
+  document.getElementById('warningBanner').style.display = d.low_confidence ? '' : 'none';
+
+  /* probability bars */
+  const sorted = Object.entries(d.predictions).sort((a,b) => b[1] - a[1]);
+  const topName = sorted[0][0];
+  const barsHtml = sorted.map(([name, prob]) => {
+    const pct = (prob * 100).toFixed(1);
+    const cls = name === topName ? 'top' : 'other';
+    return `<div class="prob-row">
+      <span class="name">${name}</span>
+      <div class="bar-track"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>
+      <span class="pct">${pct}%</span>
+    </div>`;
+  }).join('');
+  document.getElementById('probBars').innerHTML = barsHtml;
+
+  /* Grad-CAM */
+  document.getElementById('camImage').src = 'data:image/jpeg;base64,' + d.cam_image;
+
+  /* gallery */
+  const gHtml = d.gallery.map(g =>
+    `<div class="gallery-item">
+       <img src="data:image/jpeg;base64,${g.image}" alt="${g.label}">
+       <div class="caption">${g.label} (${g.sim})</div>
+     </div>`
+  ).join('');
+  document.getElementById('galleryRow').innerHTML = gHtml;
+
+  /* stats */
+  const s = d.stats;
+  const rows = [
+    ['Inference (forward pass)', s.inference_ms + ' ms'],
+    ['Average over ' + s.num_requests + ' request(s)', s.avg_ms + ' ms'],
+    ['Grad-CAM (backward pass)', s.gradcam_ms + ' ms'],
+    ['Nearest training image similarity', s.nn_sim],
+    ['Server', s.device],
+    ['Your browser', s.user_agent],
+  ];
+  document.getElementById('statsTable').innerHTML =
+    rows.map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+
+  results.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ── Load examples & about ──────────────────────────────────── */
+fetch('/api/examples').then(r=>r.json()).then(data => {
+  document.getElementById('examplesRow').innerHTML =
+    data.test.map(src => `<img src="${src}" alt="example">`).join('');
+  document.querySelectorAll('#examplesRow img').forEach(img => {
+    img.addEventListener('click', async () => {
+      const res = await fetch(img.src);
+      const blob = await res.blob();
+      showPreview(new File([blob], 'example.jpg', {type:'image/jpeg'}));
+    });
+  });
+
+  document.getElementById('synthGrid').innerHTML =
+    data.synthetic.map(src => `<img src="${src}" alt="synthetic">`).join('');
+});
+
+fetch('/api/about').then(r=>r.json()).then(d => {
+  const loloRows = d.lolo.map(r =>
+    `<tr><td>${r.name}</td><td>${r.acc.toFixed(3)}</td><td>${r.f1.toFixed(3)}</td></tr>`
+  ).join('');
+  document.getElementById('aboutContent').innerHTML = `
+    <h3>Model</h3>
+    <p><strong>${d.model_name}</strong> — DINOv2 ViT-S/14 with registers (Meta) + linear head,
+    trained on 4 chocolate bars (Kazakhstan, KitKat, Milky Way, Snickers)
+    from a self-recorded dataset (16 phone videos, 4 locations).</p>
+    <p>On a location never seen in training: accuracy <strong>${d.accuracy?.toFixed(3)}</strong>,
+    macro-F1 <strong>${d.f1?.toFixed(3)}</strong>,
+    Top-2 <strong>${d.top2?.toFixed(3)}</strong>,
+    retrieval P@5 <strong>${d.p_at_5?.toFixed(3)}</strong>.</p>
+    ${d.lolo.length ? `
+    <table>
+      <tr><th>Leave-one-location-out</th><th>Accuracy</th><th>Macro-F1</th></tr>
+      ${loloRows}
+    </table>` : ''}
+
+    <h3>Explanations</h3>
+    <ul>
+      <li><strong>Grad-CAM</strong> — which image regions pushed the model towards the predicted class (red = strong).</li>
+      <li><strong>Nearest neighbours</strong> — the 5 training images closest to your photo in the DINOv2 embedding space.</li>
+    </ul>
+
+    <h3>Synthetic Data</h3>
+    <p>Part of the training data is <strong>synthetic</strong>: the bar was segmented with ${d.mask_method}
+    and pasted onto new texture backgrounds (${d.backgrounds}). Synthetic images are used only for training,
+    never for testing.</p>
+
+    <h3>Ethics &amp; Privacy</h3>
+    <ul>
+      <li>Uploaded photos are processed in memory and <strong>not stored</strong>.</li>
+      <li>Training videos were recorded by the author; the only person visible is the author's hand (consent given).
+          Please do not upload photos of other people without their consent.</li>
+      <li>Brand names belong to their owners; this is a non-commercial student project.</li>
+      <li>Limitations: one bar per class, one phone, 4 locations — expect mistakes on other packaging, lighting or cameras.
+          The model always answers with one of 4 classes, so other objects get a low-confidence warning, not a rejection.</li>
+    </ul>
+  `;
+});
+</script>
+</body>
+</html>
+

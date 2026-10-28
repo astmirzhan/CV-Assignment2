@@ -4,3 +4,4 @@ huggingface_hub<1.0
 numpy
 pillow
 matplotlib
+flask
