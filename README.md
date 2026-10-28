@@ -10,9 +10,7 @@ explainability and a demo app.
 |---|---|
 | Report (8 pages) | [`report/A2_Report_Mirzhan_Myssyrgaliyev.pdf`](report/A2_Report_Mirzhan_Myssyrgaliyev.pdf) |
 | Training + evaluation notebook (Colab) | [`A2_chocolate_sota.ipynb`](A2_chocolate_sota.ipynb) |
-| Demo app (Gradio) | [`app/`](app/) — run guide: [`app/RUN_LOCALLY.md`](app/RUN_LOCALLY.md) |
-| Demo video | _add link_ |
-| Dataset (A1 videos) | [Google Drive](https://drive.google.com/drive/folders/183jlrpn1b1rP03dn5hD6xgxHsoQM5pP?usp=drive_link) |
+| Demo app  | [`app/`](app/) — run guide: [`app/RUN_LOCALLY.md`](app/RUN_LOCALLY.md) |
 
 ## What was added in A2
 
