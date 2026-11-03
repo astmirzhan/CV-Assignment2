@@ -3,334 +3,399 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🍫 Chocolate Bar Recognition</title>
+<title>Chocolate Bar Recognition — CV Assignment 2</title>
 <style>
-/* ── Reset & base ───────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f7f7f8; --card:#fff; --border:#e2e2e5;
-  --text:#1a1a1a; --muted:#6b6b76; --accent:#2563eb;
-  --accent-hover:#1d4ed8; --radius:12px; --shadow:0 1px 3px rgba(0,0,0,.06);
+  --bg:#faf7f3; --card:#ffffff; --border:#ece5dc; --border-strong:#ddd2c4;
+  --text:#2a1d15; --muted:#7a6a5d; --subtle:#f4eee7;
+  --accent:#6b3e26; --accent-hover:#55301d; --accent-soft:#f3e8df;
+  --ok:#1f7a4d; --ok-soft:#e3f3ea; --warn:#9a5b00; --warn-soft:#fdf1dc;
+  --radius:14px; --radius-sm:10px;
+  --shadow:0 1px 2px rgba(42,29,21,.04),0 4px 16px rgba(42,29,21,.04);
 }
+html{-webkit-text-size-adjust:100%}
 body{
-  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  background:var(--bg); color:var(--text); line-height:1.55;
-  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,'Helvetica Neue',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.5;font-size:15px;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
 }
+img{display:block;max-width:100%}
+button{font:inherit}
+.wrapper{max-width:1180px;margin:0 auto;padding:0 24px 64px}
 
-/* ── Layout ─────────────────────────────────────────────────── */
-.wrapper{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+/* ── Top bar ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0 18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--accent);display:grid;
+  grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;padding:7px}
+.logo span{background:#a8704d;border-radius:2px}
+.brand h1{font-size:1.15rem;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.brand p{font-size:.82rem;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:.75rem;font-weight:600;color:var(--muted);background:var(--card);
+  border:1px solid var(--border);border-radius:999px;padding:5px 11px;white-space:nowrap}
 
-/* ── Header ─────────────────────────────────────────────────── */
-header{text-align:center;padding:32px 0 20px}
-header h1{font-size:1.75rem;font-weight:700;letter-spacing:-.02em}
-header p{color:var(--muted);font-size:.95rem;margin-top:4px}
-
-/* ── Tabs ───────────────────────────────────────────────────── */
-.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:28px}
-.tab-btn{
-  background:none;border:none;padding:10px 22px;font-size:.9rem;font-weight:500;
-  color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
-  transition:color .15s,border-color .15s;
-}
+/* ── Tabs ── */
+.tabs{display:inline-flex;gap:4px;background:var(--subtle);border:1px solid var(--border);
+  border-radius:12px;padding:4px;margin-bottom:24px}
+.tab-btn{background:none;border:none;padding:8px 18px;font-size:.88rem;font-weight:600;
+  color:var(--muted);cursor:pointer;border-radius:9px;transition:background .15s,color .15s}
 .tab-btn:hover{color:var(--text)}
-.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-btn.active{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(42,29,21,.1)}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
-/* ── Card ───────────────────────────────────────────────────── */
-.card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:24px;box-shadow:var(--shadow);
-}
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow)}
+.label{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:10px}
+.label .hint{text-transform:none;letter-spacing:0;font-weight:500;margin-left:6px}
 
-/* ── Upload area ────────────────────────────────────────────── */
-.upload-zone{
-  border:2px dashed var(--border);border-radius:var(--radius);
-  padding:48px 24px;text-align:center;cursor:pointer;
-  transition:border-color .2s,background .2s;position:relative;
-  background:#fafafa;
-}
-.upload-zone:hover,.upload-zone.dragover{
-  border-color:var(--accent);background:#f0f5ff;
-}
-.upload-zone svg{width:48px;height:48px;color:var(--muted);margin-bottom:12px}
-.upload-zone p{color:var(--muted);font-size:.9rem}
+/* ── Demo layout ── */
+.demo-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px;align-items:start}
+@media(max-width:900px){.demo-grid{grid-template-columns:1fr}}
+.stack{display:flex;flex-direction:column;gap:20px}
+
+/* upload */
+.upload-zone{position:relative;aspect-ratio:1/1;border:2px dashed var(--border-strong);
+  border-radius:var(--radius-sm);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;cursor:pointer;background:var(--subtle);
+  transition:border-color .2s,background .2s;overflow:hidden}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:var(--accent-soft)}
+.upload-zone svg{width:40px;height:40px;color:var(--accent);margin-bottom:10px}
+.upload-zone p{color:var(--muted);font-size:.88rem;padding:0 20px}
 .upload-zone p strong{color:var(--text)}
 .upload-zone input{display:none}
-.upload-zone.has-image{padding:0;border-style:solid}
-.upload-zone.has-image img{width:100%;border-radius:var(--radius);display:block}
-
-/* preview clear btn */
-.clear-btn{
-  position:absolute;top:8px;right:8px;width:28px;height:28px;
-  border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;
-  font-size:1rem;cursor:pointer;display:none;align-items:center;justify-content:center;
-  line-height:1;
-}
+.upload-zone #preview{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.upload-zone.has-image{border-style:solid;border-color:var(--border);cursor:default}
+.clear-btn{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;
+  background:rgba(20,12,8,.6);color:#fff;border:none;font-size:1.1rem;cursor:pointer;
+  display:none;align-items:center;justify-content:center;line-height:1;z-index:2}
 .upload-zone.has-image .clear-btn{display:flex}
+.crop-note{font-size:.76rem;color:var(--muted);margin-top:8px}
 
-/* ── Buttons ────────────────────────────────────────────────── */
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:11px 28px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;
-  cursor:pointer;transition:background .15s,transform .1s;
-}
-.btn:active{transform:scale(.97)}
+/* buttons */
+.actions{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;
+  border-radius:10px;font-size:.92rem;font-weight:600;cursor:pointer;border:1px solid transparent;
+  transition:background .15s,border-color .15s,opacity .15s}
+.btn svg{width:18px;height:18px}
 .btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:var(--accent-hover)}
-.btn-primary:disabled{background:#94a3b8;cursor:not-allowed}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
-.btn-outline:hover{background:#f0f0f2}
-.btn-cam{background:#10b981;color:#fff}
-.btn-cam:hover{background:#059669}
-
-.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-
-/* ── Examples ───────────────────────────────────────────────── */
-.examples-label{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
-.examples-row{display:flex;gap:8px;flex-wrap:wrap}
-.examples-row img{
-  width:72px;height:72px;object-fit:cover;border-radius:8px;
-  border:2px solid transparent;cursor:pointer;transition:border-color .15s;
-}
-.examples-row img:hover{border-color:var(--accent)}
-
-/* ── Results ────────────────────────────────────────────────── */
-.results{display:none}
-.results.visible{display:block}
-
-.result-header{display:flex;align-items:baseline;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.result-header h2{font-size:1.35rem;font-weight:700}
-.result-header .confidence-badge{
-  font-size:.85rem;font-weight:600;padding:4px 12px;border-radius:999px;
-}
-.confidence-high{background:#d1fae5;color:#065f46}
-.confidence-low{background:#fef3c7;color:#92400e}
-
-.warning-banner{
-  background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;
-  padding:12px 16px;font-size:.85rem;color:#92400e;margin-bottom:20px;
-}
-
-/* probability bars */
-.prob-bars{margin-bottom:24px}
-.prob-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.prob-row .name{width:90px;font-size:.85rem;font-weight:500;text-align:right}
-.prob-row .bar-track{flex:1;height:24px;background:#f0f0f2;border-radius:6px;overflow:hidden;position:relative}
-.prob-row .bar-fill{height:100%;border-radius:6px;transition:width .4s ease}
-.prob-row .bar-fill.top{background:var(--accent)}
-.prob-row .bar-fill.other{background:#cbd5e1}
-.prob-row .pct{width:48px;font-size:.8rem;color:var(--muted);font-weight:600}
-
-/* two-col layout */
-.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
-@media(max-width:700px){.result-grid{grid-template-columns:1fr}}
-.result-grid .card{padding:16px}
-.result-grid .section-title{
-  font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;
-  letter-spacing:.05em;margin-bottom:10px;
-}
-.result-grid img{width:100%;border-radius:8px}
-
-/* gallery */
-.gallery-row{display:flex;gap:8px;flex-wrap:wrap}
-.gallery-item{text-align:center}
-.gallery-item img{width:100px;height:100px;object-fit:cover;border-radius:8px}
-.gallery-item .caption{font-size:.7rem;color:var(--muted);margin-top:4px}
-
-/* stats table */
-.stats-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:12px}
-.stats-table td{padding:7px 10px;border-bottom:1px solid var(--border)}
-.stats-table td:first-child{color:var(--muted);font-weight:500;width:45%}
-.stats-table td:last-child{font-weight:600}
-
-/* ── Synthetic tab ──────────────────────────────────────────── */
-.synth-note{font-size:.9rem;color:var(--muted);margin-bottom:16px}
-.synth-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
-.synth-grid img{width:100%;border-radius:8px}
-
-/* ── About tab ──────────────────────────────────────────────── */
-.about-section{max-width:740px}
-.about-section h3{font-size:1.1rem;font-weight:700;margin:24px 0 8px}
-.about-section h3:first-child{margin-top:0}
-.about-section p,.about-section li{font-size:.9rem;color:#333;line-height:1.7}
-.about-section ul{padding-left:20px;margin:8px 0}
-.about-section table{border-collapse:collapse;margin:10px 0;font-size:.85rem}
-.about-section th,.about-section td{
-  padding:6px 14px;border:1px solid var(--border);text-align:left;
-}
-.about-section th{background:#f5f5f5;font-weight:600}
-
-/* ── Spinner ────────────────────────────────────────────────── */
-.spinner-overlay{
-  display:none;position:fixed;inset:0;background:rgba(255,255,255,.7);
-  z-index:999;align-items:center;justify-content:center;
-}
-.spinner-overlay.visible{display:flex}
-.spinner{
-  width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--accent);
-  border-radius:50%;animation:spin .7s linear infinite;
-}
+.btn-primary:hover:not(:disabled){background:var(--accent-hover)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-outline{background:var(--card);border-color:var(--border-strong);color:var(--text)}
+.btn-outline:hover{background:var(--subtle)}
+.btn .spin{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.btn.loading .spin{display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── Webcam modal ───────────────────────────────────────────── */
-.modal-overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
-  z-index:1000;align-items:center;justify-content:center;
+/* examples */
+.examples-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.examples-grid img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;cursor:pointer;
+  border:2px solid transparent;transition:border-color .15s,transform .15s}
+.examples-grid img:hover{border-color:var(--accent)}
+.examples-grid img.selected{border-color:var(--accent)}
+
+/* error */
+.error-msg{display:none;margin-top:12px;font-size:.85rem;color:#9b1c1c;background:#fdecec;
+  border:1px solid #f6caca;border-radius:8px;padding:10px 12px}
+.error-msg.visible{display:block}
+
+/* empty state */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  min-height:420px;color:var(--muted);gap:8px}
+.empty svg{width:44px;height:44px;color:var(--border-strong);margin-bottom:4px}
+.empty h3{color:var(--text);font-size:1rem}
+.empty p{font-size:.88rem;max-width:340px}
+.results{display:none}
+.results.visible{display:flex}
+
+/* prediction */
+.pred-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.pred-head .label{margin-bottom:4px}
+.pred-head h2{font-size:2rem;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.badge{font-size:.82rem;font-weight:700;padding:6px 12px;border-radius:999px}
+.badge.high{background:var(--ok-soft);color:var(--ok)}
+.badge.low{background:var(--warn-soft);color:var(--warn)}
+.warning-banner{display:none;background:var(--warn-soft);border:1px solid #f3d9a8;border-radius:10px;
+  padding:10px 14px;font-size:.84rem;color:var(--warn);margin-bottom:16px}
+.prob-row{display:grid;grid-template-columns:96px 1fr 56px;align-items:center;gap:12px;margin-bottom:8px}
+.prob-row:last-child{margin-bottom:0}
+.prob-row .name{font-size:.86rem;font-weight:600}
+.bar-track{height:10px;background:var(--subtle);border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;transition:width .5s ease}
+.bar-fill.top{background:var(--accent)}
+.bar-fill.other{background:#d9c9b9}
+.prob-row .pct{font-size:.82rem;color:var(--muted);font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+
+/* explain */
+.explain-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+@media(max-width:620px){.explain-grid{grid-template-columns:1fr}}
+.cam-img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:var(--radius-sm)}
+.legend{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.74rem;color:var(--muted)}
+.legend .ramp{flex:1;height:6px;border-radius:999px;
+  background:linear-gradient(90deg,#00007f,#0000ff,#00ffff,#7fff7f,#ffff00,#ff0000,#7f0000)}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gallery-item{position:relative}
+.gallery-item img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px}
+.gallery-item .caption{font-size:.72rem;color:var(--muted);margin-top:4px;line-height:1.3}
+.gallery-item .caption b{color:var(--text);font-weight:600;display:block}
+
+/* stats */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:620px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--subtle);border-radius:10px;padding:12px 14px}
+.kpi .v{font-size:1.3rem;font-weight:800;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:.75rem;font-weight:600;color:var(--muted);margin-left:2px}
+.kpi .k{font-size:.74rem;color:var(--muted);margin-top:2px}
+.env{margin-top:14px;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:.82rem}
+.env dt{color:var(--muted)}
+.env dd{font-weight:500;word-break:break-word}
+.env dd.ua{font-size:.72rem;color:var(--muted);font-weight:400}
+
+/* ── Synthetic tab ── */
+.notice{display:flex;gap:12px;align-items:flex-start;background:var(--warn-soft);border:1px solid #f3d9a8;
+  border-radius:var(--radius);padding:14px 16px;font-size:.88rem;color:#5c3a00;margin-bottom:20px}
+.notice svg{width:20px;height:20px;flex:none;margin-top:1px;color:var(--warn)}
+.synth-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.synth-item{position:relative;border-radius:var(--radius-sm);overflow:hidden;background:var(--subtle)}
+.synth-item img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.synth-tag{position:absolute;top:8px;left:8px;background:rgba(155,28,28,.92);color:#fff;font-size:.66rem;
+  font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:6px}
+.synth-item{background:var(--card);border:1px solid var(--border)}
+.synth-item .cap{padding:8px 10px;font-size:.8rem;font-weight:600}
+
+/* ── About tab ── */
+.about-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:20px;align-items:start}
+@media(max-width:900px){.about-grid{grid-template-columns:1fr}}
+.prose h3{font-size:1rem;font-weight:700;margin:22px 0 8px}
+.prose h3:first-child{margin-top:0}
+.prose p,.prose li{font-size:.9rem;color:#4a3a2f;line-height:1.7}
+.prose ul{padding-left:18px;margin:6px 0}
+.prose li{margin-bottom:4px}
+.metric-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.metric-table th,.metric-table td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.metric-table th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+.metric-table td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.metric-table th.num{text-align:right}
+.metric-table tr.hl td{background:var(--accent-soft)}
+.metric-table tr:last-child td{border-bottom:none}
+
+@media(max-width:560px){
+  .wrapper{padding:0 14px 48px}
+  .chips{display:none}
+  .tabs{display:flex;width:100%}
+  .tab-btn{flex:1;padding:8px 6px;font-size:.82rem}
+  .card{padding:16px}
+  .pred-head h2{font-size:1.6rem}
 }
+footer{margin-top:40px;font-size:.78rem;color:var(--muted);text-align:center}
+
+/* ── Webcam modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,12,8,.55);z-index:1000;
+  align-items:center;justify-content:center;padding:16px}
 .modal-overlay.visible{display:flex}
-.modal-box{
-  background:#fff;border-radius:var(--radius);padding:24px;
-  max-width:480px;width:90%;text-align:center;
-}
-.modal-box video{width:100%;border-radius:8px;background:#000;margin-bottom:12px}
+.modal-box{background:var(--card);border-radius:var(--radius);padding:18px;max-width:520px;width:100%}
+.modal-box video{width:100%;border-radius:10px;background:#000;margin-bottom:12px;aspect-ratio:4/3;object-fit:cover}
 .modal-box canvas{display:none}
-.modal-actions{display:flex;gap:10px;justify-content:center}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.cam-error{display:none;font-size:.85rem;color:#9b1c1c;margin-bottom:12px}
 </style>
 </head>
 <body>
 
-<div class="spinner-overlay" id="spinner"><div class="spinner"></div></div>
-
 <!-- Webcam modal -->
 <div class="modal-overlay" id="camModal">
   <div class="modal-box">
-    <video id="camVideo" autoplay playsinline></video>
+    <video id="camVideo" autoplay playsinline muted></video>
     <canvas id="camCanvas"></canvas>
+    <p class="cam-error" id="camError">Camera access was denied or no camera is available.</p>
     <div class="modal-actions">
-      <button class="btn btn-primary" id="camSnap">📸 Snap</button>
       <button class="btn btn-outline" id="camClose">Cancel</button>
+      <button class="btn btn-primary" id="camSnap">Take photo</button>
     </div>
   </div>
 </div>
 
 <div class="wrapper">
-  <header>
-    <h1>🍫 Chocolate Bar Recognition</h1>
-    <p>Upload a photo or use the camera — get a prediction with a visual explanation</p>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <div>
+        <h1>Chocolate Bar Recognition</h1>
+        <p>Computer Vision · Assignment 2 · DINOv2 + SAM 2</p>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip">4 classes</span>
+      <span class="chip">DINOv2-S/14 + registers</span>
+      <span class="chip">Grad-CAM · k-NN</span>
+    </div>
   </header>
 
-  <!-- Tabs -->
-  <div class="tabs">
+  <nav class="tabs">
     <button class="tab-btn active" data-tab="demo">Demo</button>
-    <button class="tab-btn" data-tab="synthetic">Synthetic Data</button>
-    <button class="tab-btn" data-tab="about">About &amp; Ethics</button>
-  </div>
+    <button class="tab-btn" data-tab="synthetic">Synthetic data</button>
+    <button class="tab-btn" data-tab="about">About &amp; ethics</button>
+  </nav>
 
   <!-- ═══ DEMO TAB ═══ -->
-  <div class="tab-panel active" id="tab-demo">
-    <div class="card" style="margin-bottom:24px">
-      <div class="upload-zone" id="dropZone">
-        <button class="clear-btn" id="clearBtn" title="Remove image">&times;</button>
-        <img id="preview" alt="">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" id="uploadIcon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
-        </svg>
-        <p id="uploadText"><strong>Click to upload</strong> or drag &amp; drop<br>JPG, PNG, WEBP</p>
-        <input type="file" id="fileInput" accept="image/*">
-      </div>
-
-      <div class="actions">
-        <button class="btn btn-primary" id="predictBtn" disabled>Recognise</button>
-        <button class="btn btn-cam" id="cameraBtn">📷 Camera</button>
-      </div>
-    </div>
-
-    <!-- Example images -->
-    <div id="examplesSection" style="margin-bottom:28px">
-      <div class="examples-label">Example images (held-out test set)</div>
-      <div class="examples-row" id="examplesRow"></div>
-    </div>
-
-    <!-- Results -->
-    <div class="results" id="results">
-      <div class="result-header">
-        <h2 id="resultClass"></h2>
-        <span class="confidence-badge" id="resultBadge"></span>
-      </div>
-      <div class="warning-banner" id="warningBanner" style="display:none">
-        ⚠️ Low confidence — the photo looks unlike the training images.
-        It may not be one of the 4 bars, or the bar is too small / covered / blurred.
-      </div>
-
-      <div class="prob-bars" id="probBars"></div>
-
-      <div class="result-grid">
+  <section class="tab-panel active" id="tab-demo">
+    <div class="demo-grid">
+      <!-- left: input -->
+      <div class="stack">
         <div class="card">
-          <div class="section-title">Grad-CAM — DINOv2 last block</div>
-          <img id="camImage" alt="Grad-CAM">
+          <div class="label">Input image</div>
+          <div class="upload-zone" id="dropZone">
+            <button class="clear-btn" id="clearBtn" title="Remove image">&times;</button>
+            <img id="preview" alt="Selected image">
+            <svg id="uploadIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+            </svg>
+            <p id="uploadText"><strong>Click to upload</strong> or drag &amp; drop<br>JPG · PNG · WEBP</p>
+            <input type="file" id="fileInput" accept="image/*">
+          </div>
+          <p class="crop-note">The model sees the centre square of the photo (224 × 224).</p>
+          <div class="actions">
+            <button class="btn btn-primary" id="predictBtn" disabled><span class="spin"></span><span id="predictLabel">Recognise</span></button>
+            <button class="btn btn-outline" id="cameraBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6.8 6.2A2.3 2.3 0 0 1 8.7 5h6.6a2.3 2.3 0 0 1 1.9 1.2l.7 1.3H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5a2 2 0 0 1 2-2h1.1l.7-1.3Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+              Camera
+            </button>
+          </div>
+          <div class="error-msg" id="errorMsg"></div>
         </div>
+
         <div class="card">
-          <div class="section-title">5 nearest training images</div>
-          <div class="gallery-row" id="galleryRow"></div>
+          <div class="label">Try an example <span class="hint">held-out test frames</span></div>
+          <div class="examples-grid" id="examplesRow"></div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="section-title">Performance</div>
-        <table class="stats-table" id="statsTable"></table>
+      <!-- right: output -->
+      <div>
+        <div class="card empty" id="emptyState">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="3"/><path stroke-linecap="round" d="M3 9h18M9 9v12"/></svg>
+          <h3>No prediction yet</h3>
+          <p>Upload a photo, take one with the camera or pick an example, then press <b>Recognise</b>.
+             You'll get the class, a Grad-CAM heatmap, the 5 nearest training images and the latency.</p>
+        </div>
+
+        <div class="results stack" id="results">
+          <div class="card">
+            <div class="pred-head">
+              <div>
+                <div class="label">Prediction</div>
+                <h2 id="resultClass"></h2>
+              </div>
+              <span class="badge" id="resultBadge"></span>
+            </div>
+            <div class="warning-banner" id="warningBanner">
+              Low confidence — the photo looks unlike the training images. It may not be one of the
+              4 bars, or the bar is too small, covered or blurred.
+            </div>
+            <div id="probBars"></div>
+          </div>
+
+          <div class="explain-grid">
+            <div class="card">
+              <div class="label">Grad-CAM <span class="hint">DINOv2 last block</span></div>
+              <img class="cam-img" id="camImage" alt="Grad-CAM heatmap">
+              <div class="legend"><span>low</span><span class="ramp"></span><span>high</span></div>
+            </div>
+            <div class="card">
+              <div class="label">Nearest training images <span class="hint">cosine similarity</span></div>
+              <div class="gallery" id="galleryRow"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="label">Latency &amp; environment</div>
+            <div class="kpis" id="kpis"></div>
+            <dl class="env" id="envList"></dl>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- ═══ SYNTHETIC TAB ═══ -->
-  <div class="tab-panel" id="tab-synthetic">
-    <div class="card">
-      <p class="synth-note">
-        <strong>Note:</strong> All images below are <strong>synthetic</strong> — bar cut-outs (SAM 2)
-        pasted onto new texture backgrounds. Used only to enlarge the training set; never for evaluation.
-      </p>
-      <div class="synth-grid" id="synthGrid"></div>
+  <section class="tab-panel" id="tab-synthetic">
+    <div class="notice">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+      <div><strong>All images on this page are synthetic.</strong> The bar was cut out of a real frame with
+        SAM 2.1 and pasted onto a new texture background (DTD). These images were used only to enlarge the
+        training set — never for testing. Each one is marked <b>SYNTHETIC</b>.</div>
     </div>
-  </div>
+    <div class="synth-grid" id="synthGrid"></div>
+  </section>
 
   <!-- ═══ ABOUT TAB ═══ -->
-  <div class="tab-panel" id="tab-about">
-    <div class="card about-section" id="aboutContent">Loading…</div>
-  </div>
+  <section class="tab-panel" id="tab-about">
+    <div class="about-grid">
+      <div class="card prose" id="aboutContent">Loading…</div>
+      <div class="stack">
+        <div class="card">
+          <div class="label">Held-out location — deployed model</div>
+          <div class="kpis" id="aboutKpis" style="grid-template-columns:repeat(2,1fr)"></div>
+        </div>
+        <div class="card">
+          <div class="label">Leave-one-location-out (mean of 4 folds)</div>
+          <table class="metric-table" id="loloTable"></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Mirzhan Myssyrgaliyev · SE-2414 · Astana IT University · Non-commercial student project. Brand names belong to their owners.</footer>
 </div>
 
 <script>
-/* ── Tabs ───────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+
+/* ── Tabs ── */
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    $('tab-' + btn.dataset.tab).classList.add('active');
   });
 });
 
-/* ── Upload zone ────────────────────────────────────────────── */
-const dropZone   = document.getElementById('dropZone');
-const fileInput  = document.getElementById('fileInput');
-const preview    = document.getElementById('preview');
-const uploadIcon = document.getElementById('uploadIcon');
-const uploadText = document.getElementById('uploadText');
-const clearBtn   = document.getElementById('clearBtn');
-const predictBtn = document.getElementById('predictBtn');
-let currentFile  = null;
+/* ── Upload ── */
+const dropZone = $('dropZone'), fileInput = $('fileInput'), preview = $('preview');
+const uploadIcon = $('uploadIcon'), uploadText = $('uploadText'), clearBtn = $('clearBtn');
+const predictBtn = $('predictBtn');
+let currentFile = null;
+
+function showError(msg) { const e = $('errorMsg'); e.textContent = msg; e.classList.toggle('visible', !!msg); }
 
 function showPreview(file) {
   currentFile = file;
-  const url = URL.createObjectURL(file);
-  preview.src = url;
+  if (preview.src.startsWith('blob:')) URL.revokeObjectURL(preview.src);
+  preview.src = URL.createObjectURL(file);
   preview.style.display = 'block';
   uploadIcon.style.display = 'none';
   uploadText.style.display = 'none';
   dropZone.classList.add('has-image');
   predictBtn.disabled = false;
+  showError('');
 }
 
 function clearPreview() {
   currentFile = null;
-  preview.src = '';
+  preview.removeAttribute('src');
   preview.style.display = 'none';
   uploadIcon.style.display = '';
   uploadText.style.display = '';
   dropZone.classList.remove('has-image');
   predictBtn.disabled = true;
+  fileInput.value = '';
+  document.querySelectorAll('#examplesRow img').forEach(i => i.classList.remove('selected'));
 }
 
 dropZone.addEventListener('click', e => {
@@ -339,155 +404,162 @@ dropZone.addEventListener('click', e => {
 });
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) showPreview(fileInput.files[0]); });
 clearBtn.addEventListener('click', e => { e.stopPropagation(); clearPreview(); });
-
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 dropZone.addEventListener('drop', e => {
   e.preventDefault(); dropZone.classList.remove('dragover');
-  if (e.dataTransfer.files[0]) showPreview(e.dataTransfer.files[0]);
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) showPreview(f); else if (f) showError('Please drop an image file.');
 });
 
-/* ── Camera ─────────────────────────────────────────────────── */
-const camModal = document.getElementById('camModal');
-const camVideo = document.getElementById('camVideo');
-const camCanvas = document.getElementById('camCanvas');
+/* ── Camera ── */
+const camModal = $('camModal'), camVideo = $('camVideo'), camCanvas = $('camCanvas');
 let camStream = null;
 
-document.getElementById('cameraBtn').addEventListener('click', async () => {
+$('cameraBtn').addEventListener('click', async () => {
   camModal.classList.add('visible');
+  $('camError').style.display = 'none';
+  $('camSnap').disabled = false;
   try {
-    camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    camStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}});
     camVideo.srcObject = camStream;
-  } catch(e) { alert('Camera access denied'); camModal.classList.remove('visible'); }
+  } catch (e) {
+    $('camError').style.display = 'block';
+    $('camSnap').disabled = true;
+  }
 });
-
-document.getElementById('camSnap').addEventListener('click', () => {
+$('camSnap').addEventListener('click', () => {
+  if (!camVideo.videoWidth) return;
   camCanvas.width = camVideo.videoWidth;
   camCanvas.height = camVideo.videoHeight;
   camCanvas.getContext('2d').drawImage(camVideo, 0, 0);
   camCanvas.toBlob(blob => {
-    showPreview(new File([blob], 'camera.jpg', {type:'image/jpeg'}));
+    showPreview(new File([blob], 'camera.jpg', {type: 'image/jpeg'}));
     closeCam();
   }, 'image/jpeg', 0.92);
 });
-
-document.getElementById('camClose').addEventListener('click', closeCam);
+$('camClose').addEventListener('click', closeCam);
+camModal.addEventListener('click', e => { if (e.target === camModal) closeCam(); });
 function closeCam() {
   if (camStream) camStream.getTracks().forEach(t => t.stop());
   camStream = null;
   camModal.classList.remove('visible');
 }
 
-/* ── Predict ────────────────────────────────────────────────── */
+/* ── Predict ── */
 predictBtn.addEventListener('click', doPredict);
 
 async function doPredict() {
   if (!currentFile) return;
-  const spinner = document.getElementById('spinner');
-  spinner.classList.add('visible');
   predictBtn.disabled = true;
-
+  predictBtn.classList.add('loading');
+  $('predictLabel').textContent = 'Analysing…';
+  showError('');
   const fd = new FormData();
   fd.append('image', currentFile);
-
   try {
-    const res = await fetch('/api/predict', {method:'POST', body:fd});
+    const res = await fetch('/api/predict', {method: 'POST', body: fd});
     const data = await res.json();
-    if (data.error) { alert(data.error); return; }
+    if (data.error) { showError(data.error); return; }
     renderResults(data);
-  } catch(e) { alert('Request failed: ' + e.message); }
-  finally { spinner.classList.remove('visible'); predictBtn.disabled = false; }
+  } catch (e) {
+    showError('Request failed: ' + e.message);
+  } finally {
+    predictBtn.disabled = !currentFile;
+    predictBtn.classList.remove('loading');
+    $('predictLabel').textContent = 'Recognise';
+  }
+}
+
+function browserInfo(ua) {
+  const os = /iPhone|iPad/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android' :
+             /Mac OS X/.test(ua) ? 'macOS' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Unknown OS';
+  const m = ua.match(/(Edg|OPR|YaBrowser|Firefox|Chrome|CriOS|Version)\/(\d+)/);
+  let name = m ? m[1] : 'Browser';
+  name = {Edg: 'Edge', OPR: 'Opera', CriOS: 'Chrome', Version: 'Safari', YaBrowser: 'Yandex'}[name] || name;
+  return `${name}${m ? ' ' + m[2] : ''} on ${os}`;
 }
 
 function renderResults(d) {
-  const results = document.getElementById('results');
-  results.classList.add('visible');
+  $('emptyState').style.display = 'none';
+  $('results').classList.add('visible');
 
-  /* header */
-  document.getElementById('resultClass').textContent = d.predicted_class;
-  const badge = document.getElementById('resultBadge');
-  badge.textContent = (d.confidence * 100).toFixed(0) + '%';
-  badge.className = 'confidence-badge ' + (d.low_confidence ? 'confidence-low' : 'confidence-high');
+  $('resultClass').textContent = d.predicted_class;
+  const badge = $('resultBadge');
+  badge.textContent = (d.confidence * 100).toFixed(1) + '% confidence';
+  badge.className = 'badge ' + (d.low_confidence ? 'low' : 'high');
+  $('warningBanner').style.display = d.low_confidence ? 'block' : 'none';
 
-  /* warning */
-  document.getElementById('warningBanner').style.display = d.low_confidence ? '' : 'none';
-
-  /* probability bars */
-  const sorted = Object.entries(d.predictions).sort((a,b) => b[1] - a[1]);
-  const topName = sorted[0][0];
-  const barsHtml = sorted.map(([name, prob]) => {
-    const pct = (prob * 100).toFixed(1);
-    const cls = name === topName ? 'top' : 'other';
-    return `<div class="prob-row">
-      <span class="name">${name}</span>
-      <div class="bar-track"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>
-      <span class="pct">${pct}%</span>
-    </div>`;
+  const sorted = Object.entries(d.predictions).sort((a, b) => b[1] - a[1]);
+  $('probBars').innerHTML = sorted.map(([name, p], i) => {
+    const pct = (p * 100).toFixed(1);
+    return `<div class="prob-row"><span class="name">${name}</span>
+      <div class="bar-track"><div class="bar-fill ${i === 0 ? 'top' : 'other'}" style="width:${pct}%"></div></div>
+      <span class="pct">${pct}%</span></div>`;
   }).join('');
-  document.getElementById('probBars').innerHTML = barsHtml;
 
-  /* Grad-CAM */
-  document.getElementById('camImage').src = 'data:image/jpeg;base64,' + d.cam_image;
+  $('camImage').src = 'data:image/jpeg;base64,' + d.cam_image;
 
-  /* gallery */
-  const gHtml = d.gallery.map(g =>
+  $('galleryRow').innerHTML = d.gallery.map((g, i) =>
     `<div class="gallery-item">
        <img src="data:image/jpeg;base64,${g.image}" alt="${g.label}">
-       <div class="caption">${g.label} (${g.sim})</div>
-     </div>`
-  ).join('');
-  document.getElementById('galleryRow').innerHTML = gHtml;
+       <div class="caption"><b>#${i + 1} ${g.label}</b>sim ${g.sim.toFixed(2)}</div>
+     </div>`).join('');
 
-  /* stats */
   const s = d.stats;
-  const rows = [
-    ['Inference (forward pass)', s.inference_ms + ' ms'],
-    ['Average over ' + s.num_requests + ' request(s)', s.avg_ms + ' ms'],
-    ['Grad-CAM (backward pass)', s.gradcam_ms + ' ms'],
-    ['Nearest training image similarity', s.nn_sim],
-    ['Server', s.device],
-    ['Your browser', s.user_agent],
-  ];
-  document.getElementById('statsTable').innerHTML =
-    rows.map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  $('kpis').innerHTML = [
+    [s.inference_ms, 'ms', 'Inference (this image)'],
+    [s.avg_ms, 'ms', `Average · ${s.num_requests} request${s.num_requests > 1 ? 's' : ''}`],
+    [s.gradcam_ms, 'ms', 'Grad-CAM (backward)'],
+    [s.nn_sim.toFixed(2), '', 'Top-1 NN similarity'],
+  ].map(([v, u, k]) => `<div class="kpi"><div class="v">${v}<small>${u}</small></div><div class="k">${k}</div></div>`).join('');
 
-  results.scrollIntoView({behavior:'smooth', block:'start'});
+  $('envList').innerHTML = `
+    <dt>Server</dt><dd>${s.device}</dd>
+    <dt>Browser</dt><dd>${browserInfo(navigator.userAgent)}</dd>
+    <dt></dt><dd class="ua">${s.user_agent}</dd>`;
+
+  if (window.innerWidth <= 900) $('results').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
-/* ── Load examples & about ──────────────────────────────────── */
-fetch('/api/examples').then(r=>r.json()).then(data => {
-  document.getElementById('examplesRow').innerHTML =
-    data.test.map(src => `<img src="${src}" alt="example">`).join('');
-  document.querySelectorAll('#examplesRow img').forEach(img => {
+/* ── Examples & synthetic ── */
+const PRETTY = {kazakhstan: 'Kazakhstan', kitkat: 'KitKat', milkyway: 'Milky Way', snickers: 'Snickers'};
+const classOf = src => { const f = src.split('/').pop().replace(/^SYNTHETIC_/, ''); return PRETTY[f.split('_')[0]] || ''; };
+
+fetch('/api/examples').then(r => r.json()).then(data => {
+  const row = $('examplesRow');
+  row.innerHTML = data.test.map(src => `<img src="${src}" alt="${classOf(src)} example" title="${classOf(src)}">`).join('');
+  row.querySelectorAll('img').forEach(img => {
     img.addEventListener('click', async () => {
-      const res = await fetch(img.src);
-      const blob = await res.blob();
-      showPreview(new File([blob], 'example.jpg', {type:'image/jpeg'}));
+      const blob = await (await fetch(img.src)).blob();
+      showPreview(new File([blob], 'example.jpg', {type: 'image/jpeg'}));
+      row.querySelectorAll('img').forEach(i => i.classList.remove('selected'));
+      img.classList.add('selected');
     });
   });
-
-  document.getElementById('synthGrid').innerHTML =
-    data.synthetic.map(src => `<img src="${src}" alt="synthetic">`).join('');
+  $('synthGrid').innerHTML = data.synthetic.map(src =>
+    `<figure class="synth-item"><img src="${src}" alt="Synthetic ${classOf(src)}">
+       <span class="synth-tag">SYNTHETIC</span><figcaption class="cap">${classOf(src)}</figcaption></figure>`).join('');
 });
 
-fetch('/api/about').then(r=>r.json()).then(d => {
-  const loloRows = d.lolo.map(r =>
-    `<tr><td>${r.name}</td><td>${r.acc.toFixed(3)}</td><td>${r.f1.toFixed(3)}</td></tr>`
-  ).join('');
-  document.getElementById('aboutContent').innerHTML = `
+/* ── About ── */
+fetch('/api/about').then(r => r.json()).then(d => {
+  const f = v => (v == null ? '—' : v.toFixed(3));
+  $('aboutKpis').innerHTML = [
+    [f(d.accuracy), 'Accuracy'], [f(d.f1), 'Macro-F1'], [f(d.top2), 'Top-2 accuracy'], [f(d.p_at_5), 'Retrieval P@5'],
+  ].map(([v, k]) => `<div class="kpi"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
+
+  $('loloTable').innerHTML = d.lolo.length
+    ? `<tr><th>Model</th><th class="num">Acc</th><th class="num">F1</th></tr>` +
+      d.lolo.map(r => `<tr class="${r.name === d.model_name ? 'hl' : ''}"><td>${r.name}</td>
+        <td class="num">${r.acc.toFixed(3)}</td><td class="num">${r.f1.toFixed(3)}</td></tr>`).join('')
+    : '<tr><td>No LOLO results in config.</td></tr>';
+
+  $('aboutContent').innerHTML = `
     <h3>Model</h3>
-    <p><strong>${d.model_name}</strong> — DINOv2 ViT-S/14 with registers (Meta) + linear head,
-    trained on 4 chocolate bars (Kazakhstan, KitKat, Milky Way, Snickers)
-    from a self-recorded dataset (16 phone videos, 4 locations).</p>
-    <p>On a location never seen in training: accuracy <strong>${d.accuracy?.toFixed(3)}</strong>,
-    macro-F1 <strong>${d.f1?.toFixed(3)}</strong>,
-    Top-2 <strong>${d.top2?.toFixed(3)}</strong>,
-    retrieval P@5 <strong>${d.p_at_5?.toFixed(3)}</strong>.</p>
-    ${d.lolo.length ? `
-    <table>
-      <tr><th>Leave-one-location-out</th><th>Accuracy</th><th>Macro-F1</th></tr>
-      ${loloRows}
-    </table>` : ''}
+    <p><strong>${d.model_name}</strong> — DINOv2 ViT-S/14 with registers (Meta) and a linear head, trained on
+    4 chocolate bars (Kazakhstan, KitKat, Milky Way, Snickers) from a self-recorded dataset
+    (16 phone videos, 4 locations, 800 frames). The A1 baseline was MobileNetV2.</p>
 
     <h3>Explanations</h3>
     <ul>
@@ -495,23 +567,25 @@ fetch('/api/about').then(r=>r.json()).then(d => {
       <li><strong>Nearest neighbours</strong> — the 5 training images closest to your photo in the DINOv2 embedding space.</li>
     </ul>
 
-    <h3>Synthetic Data</h3>
+    <h3>Synthetic data</h3>
     <p>Part of the training data is <strong>synthetic</strong>: the bar was segmented with ${d.mask_method}
-    and pasted onto new texture backgrounds (${d.backgrounds}). Synthetic images are used only for training,
-    never for testing.</p>
+    and pasted onto new texture backgrounds from ${d.backgrounds}. Synthetic images are labelled
+    <b>SYNTHETIC</b>, used only for training and never for testing.</p>
 
-    <h3>Ethics &amp; Privacy</h3>
+    <h3>Ethics &amp; privacy</h3>
     <ul>
       <li>Uploaded photos are processed in memory and <strong>not stored</strong>.</li>
       <li>Training videos were recorded by the author; the only person visible is the author's hand (consent given).
           Please do not upload photos of other people without their consent.</li>
       <li>Brand names belong to their owners; this is a non-commercial student project.</li>
-      <li>Limitations: one bar per class, one phone, 4 locations — expect mistakes on other packaging, lighting or cameras.
-          The model always answers with one of 4 classes, so other objects get a low-confidence warning, not a rejection.</li>
     </ul>
-  `;
+
+    <h3>Limitations</h3>
+    <ul>
+      <li>One bar per class, one phone, 4 locations — expect mistakes on other packaging, lighting or cameras.</li>
+      <li>The model always answers with one of the 4 classes, so other objects get a low-confidence warning, not a rejection.</li>
+    </ul>`;
 });
 </script>
 </body>
 </html>
-

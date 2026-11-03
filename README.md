@@ -41,9 +41,8 @@ Synthetic data roughly halves the spread across locations. Details in the report
 ```bash
 cd app
 uv venv --python 3.12 && source .venv/bin/activate   # Python 3.10+ required
-uv pip install gradio==5.50.0 -r requirements.txt
+uv pip install -r requirements.txt
 python app.py            # http://127.0.0.1:7860
-python app.py --share    # optional temporary public link
 ```
 
 Upload a photo or use the webcam → predicted bar, Grad-CAM heatmap, 5 nearest training images, latency.
@@ -60,7 +59,8 @@ and `app/examples` folders).
 ├── A2_chocolate_sota.ipynb   training, evaluation, figures, model export
 ├── report/                   PDF and DOCX report
 └── app/
-    ├── app.py                Gradio demo
+    ├── app.py                Flask backend (model, Grad-CAM, k-NN API)
+    ├── index.html            web UI (HTML/CSS/JS)
     ├── requirements.txt
     ├── RUN_LOCALLY.md        local run guide
     ├── model/                trained DINOv2 classifier, config, nearest-neighbour gallery
