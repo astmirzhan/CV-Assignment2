@@ -6,6 +6,15 @@ Continuation of Assignment 1: four chocolate bars (Kazakhstan, KitKat, Milky Way
 16 self-recorded phone videos at 4 locations. Assignment 2 adds SOTA components, robust evaluation,
 explainability and a demo app.
 
+<p>
+  <img src="https://img.shields.io/badge/PyTorch-DINOv2_·_MobileNetV2-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch, DINOv2 and MobileNetV2" />
+  <img src="https://img.shields.io/badge/SAM_2.1-synthetic_data-0467DF?style=for-the-badge&logo=meta&logoColor=white" alt="SAM 2.1 synthetic data" />
+  <img src="https://img.shields.io/badge/Accuracy-~99%25-2EA44F?style=for-the-badge" alt="About 99% accuracy" />
+  <img src="https://img.shields.io/badge/Demo-Flask_web_app-000000?style=for-the-badge&logo=flask&logoColor=white" alt="Flask demo app" />
+</p>
+
+<img src="docs/examples.jpg" alt="Examples: real frames of Kazakhstan, KitKat, Milky Way and Snickers bars, and two synthetic images made with SAM 2 on new backgrounds" width="100%" />
+
 | Deliverable | Where |
 |---|---|
 | Report (8 pages) | [`report/A2_Report_Mirzhan_Myssyrgaliyev.pdf`](report/A2_Report_Mirzhan_Myssyrgaliyev.pdf) |
